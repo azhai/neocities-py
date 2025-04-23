@@ -3,6 +3,7 @@ import requests
 
 class NeoCities:
     api_key = None
+
     def __init__(self, username=None, password=None, api_key=None, options={}):
         self.auth = (username, password)
         if api_key:
@@ -76,7 +77,9 @@ class NeoCities:
         for i in filenames:
             args['filenames[]'].append(i)
         if self.api_key:
-            response = requests.get(self._request_url('delete'), data=args, headers={'Authorization':'Bearer '+self.api_key})
+            headers = {'Authorization':'Bearer '+self.api_key}
+            headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
+            response = requests.post(self._request_url('delete'), data=args, headers=headers)
         else:
             response = requests.post(self._request_url('delete'), auth=self.auth, data=args)
         return self._decode(response)
@@ -103,7 +106,9 @@ class NeoCities:
         # { name_on_server: <file_object> }
         args = {pair[1]: open(pair[0], 'rb') for pair in filenames}
         if self.api_key:
-            response = requests.post(self._request_url('upload'), files=args, headers={'Authorization':'Bearer '+self.api_key})
+            headers = {'Authorization':'Bearer '+self.api_key}
+            headers.update({'Content-Type': 'multipart/form-data'})
+            response = requests.post(self._request_url('upload'), files=args, headers=headers)
         else:
             response = requests.post(self._request_url('upload'), auth=self.auth, files=args)
         return self._decode(response)

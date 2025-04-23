@@ -18,6 +18,6 @@ setup(name='neocities',
       packages=find_packages('.'),
       entry_points="""\
 [console_scripts]
-neocities = neocities.neocli:main
+neopy = neocities.neocli:main
       """,
       )

@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-import neocities
-import requests
 import os
 import click
 from tabulate import tabulate
-import shutil
+import neocities
+
 
 CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"], token_normalize_func=lambda x: x.lower()
@@ -77,10 +76,35 @@ def upload(source, destination):
 
 
 @cli.command()
+@click.argument("dirname", required=False)
+def upload_root(dirname):
+    """Upload local files to webroot."""
+    files = []
+    dirname = dirname or "."
+    for root, _, dirfiles, in os.walk(dirname):
+        if root.startswith("./"):
+            root = root[2:]
+        for name in dirfiles:
+            path = os.path.join(root, name)
+            files.append((path, path))
+    nc.upload(*files)
+
+
+@cli.command()
 @click.argument("filenames", required=True, nargs=-1)
 def delete(filenames):
     """Delete one or more files from a NeoCities site."""
     nc.delete(filenames)
+
+
+@cli.command()
+def delete_all():
+    """Delete all remote files except index.html."""
+    response = nc.listitems()
+    if "files" in response:
+        files = [f["path"] for f in response["files"]
+                 if not f["is_directory"] and f["path"] != "index.html"]
+        nc.delete(*files)
 
 
 @cli.command()
