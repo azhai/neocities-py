@@ -1,7 +1,8 @@
-import unittest
 import os
+import unittest
 
 import neocities
+
 
 # Bonus: Running these tests enough times will likely get you banned!
 

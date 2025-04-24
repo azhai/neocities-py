@@ -9,12 +9,13 @@ setup(name='neocities',
           'Topic :: Internet'
           'Operating System :: OS Independent',
           'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
-          ],
+      ],
       license='LGPLv3',
       package_dir={'neocities': 'neocities'},
       install_requires=['requests',
                         'click',
-                        'tabulate'],
+                        'tabulate',
+                        'prettyprinter'],
       packages=find_packages('.'),
       entry_points="""\
 [console_scripts]

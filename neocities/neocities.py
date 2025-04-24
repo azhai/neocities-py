@@ -31,7 +31,8 @@ class NeoCities:
         else:
             args = None
         if self.api_key:
-            response = requests.get(self._request_url('info'), params=args, headers={'Authorization':'Bearer '+self.api_key})
+            response = requests.get(self._request_url('info'), params=args,
+                                    headers={'Authorization': 'Bearer ' + self.api_key})
         else:
             response = requests.get(self._request_url('info'), auth=self.auth, params=args)
         return self._decode(response)
@@ -53,7 +54,8 @@ class NeoCities:
         """
         args = {'sitename': site_name} if site_name else None
         if self.api_key:
-            response = requests.get(self._request_url('list'), params=args, headers={'Authorization':'Bearer '+self.api_key})
+            response = requests.get(self._request_url('list'), params=args,
+                                    headers={'Authorization': 'Bearer ' + self.api_key})
         else:
             response = requests.get(self._request_url('list'), auth=self.auth, params=args)
         return self._decode(response)
@@ -73,11 +75,13 @@ class NeoCities:
             A JSON-decoded request
 
         """
+        if len(filenames) == 0:
+            return None
         args = {'filenames[]': []}
         for i in filenames:
             args['filenames[]'].append(i)
         if self.api_key:
-            headers = {'Authorization':'Bearer '+self.api_key}
+            headers = {'Authorization': 'Bearer ' + self.api_key}
             headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
             response = requests.post(self._request_url('delete'), data=args, headers=headers)
         else:
@@ -101,13 +105,14 @@ class NeoCities:
             A JSON-decoded request
 
         """
-
+        if len(filenames) == 0:
+            return None
         # NeoCities API expects a dict in the following format:
         # { name_on_server: <file_object> }
         args = {pair[1]: open(pair[0], 'rb') for pair in filenames}
         if self.api_key:
-            headers = {'Authorization':'Bearer '+self.api_key}
-            headers.update({'Content-Type': 'multipart/form-data'})
+            headers = {'Authorization': 'Bearer ' + self.api_key}
+            # headers.update({'Content-Type': 'multipart/form-data'}) # 不能加这个header，否则会报错
             response = requests.post(self._request_url('upload'), files=args, headers=headers)
         else:
             response = requests.post(self._request_url('upload'), auth=self.auth, files=args)
@@ -127,6 +132,7 @@ class NeoCities:
         """
         Exception for signalling a request different than 200 OK
         """
+
         def __init__(self, status_code, reason=None):
             self.status_code = status_code
             self.reason = reason

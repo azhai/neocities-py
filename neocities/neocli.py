@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import os
+
 import click
 from tabulate import tabulate
-import neocities
 
+import neocities
 
 CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"], token_normalize_func=lambda x: x.lower()
@@ -73,6 +74,7 @@ def upload(source, destination):
         click.echo("Invalid target; specify a target path file extension.")
         return 1
     nc.upload((source.name, destination if destination else source.name))
+    return None
 
 
 @cli.command()
@@ -87,6 +89,7 @@ def upload_root(dirname):
         for name in dirfiles:
             path = os.path.join(root, name)
             files.append((path, path))
+    # pprint(files)
     nc.upload(*files)
 
 
@@ -101,10 +104,18 @@ def delete(filenames):
 def delete_all():
     """Delete all remote files except index.html."""
     response = nc.listitems()
-    if "files" in response:
-        files = [f["path"] for f in response["files"]
-                 if not f["is_directory"] and f["path"] != "index.html"]
-        nc.delete(*files)
+    dirs, files = [], []
+    for f in response.get("files", []):
+        if f["path"] == "index.html":
+            continue
+        elif f["is_directory"]:
+            dirs.append(f["path"])
+        else:
+            files.append(f["path"])
+    # pprint(files)
+    # pprint(dirs)
+    nc.delete(*files)
+    nc.delete(*dirs)
 
 
 @cli.command()
@@ -134,8 +145,8 @@ def push(dirc):
     files = []
     for root, dirs, dirfiles, in os.walk(dirc):
         for name in dirfiles:
-            files.append((os.path.join(root, name),
-                          os.path.relpath(os.path.join(root, name), dirc)))
+            path = os.path.join(root, name)
+            files.append((path, os.path.relpath(path, dirc)))
     for filename, dest in files:
         if os.path.splitext(filename)[1].lower() in supExt:
             nc.upload((filename, dest))
